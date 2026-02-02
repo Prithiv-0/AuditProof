@@ -131,9 +131,15 @@ export default function Login() {
                             </div>
                         )}
 
-                        {demoOtp && (
-                            <div className="mb-4 p-3 rounded-lg bg-primary-500/10 border border-primary-500/30 text-primary-300 text-sm">
-                                <span className="font-semibold">Demo Mode:</span> Your OTP is <code className="font-mono bg-primary-900/50 px-2 py-0.5 rounded">{demoOtp}</code>
+                        {demoOtp ? (
+                            <div className="mb-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-sm">
+                                <span className="font-semibold">🔧 Demo Mode:</span> Your OTP is <code className="font-mono bg-yellow-900/50 px-2 py-0.5 rounded">{demoOtp}</code>
+                                <p className="text-yellow-400/70 text-xs mt-1">Email service not configured. OTP shown for testing.</p>
+                            </div>
+                        ) : (
+                            <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-300 text-sm">
+                                <span className="font-semibold">✉️ Check Your Email</span>
+                                <p className="text-green-400/70 text-xs mt-1">A 6-digit security code has been sent to your inbox.</p>
                             </div>
                         )}
 

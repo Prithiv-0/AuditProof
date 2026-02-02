@@ -106,8 +106,26 @@ git push -u origin main
 - Check Render PostgreSQL status
 
 ### OTP not working
-- OTP is displayed in demo mode
-- Check browser console for the demo OTP value
+- OTP is displayed in demo mode when email is not configured
+- Configure Resend for production email delivery (see Step 6)
+
+---
+
+## Step 6: Configure Email Service (Optional but Recommended)
+
+For production OTP delivery via email:
+
+1. Create a free account at https://resend.com
+2. Get your API key from https://resend.com/api-keys
+3. In Render dashboard → **verischol-api** → **Environment**, add:
+   - **Key**: `RESEND_API_KEY`
+   - **Value**: Your Resend API key (starts with `re_`)
+4. Optionally add:
+   - **Key**: `EMAIL_FROM`
+   - **Value**: `VeriSchol <onboarding@resend.dev>` (for testing)
+5. Save and redeploy
+
+**Note**: Use `onboarding@resend.dev` for testing. For production, verify your domain in Resend.
 
 ---
 
@@ -135,6 +153,8 @@ git push -u origin main
 | JWT_SECRET | JWT signing key | ✅ |
 | SYSTEM_SALT | Hashing salt | ✅ |
 | FRONTEND_URL | Vercel URL | ❌ Manual |
+| RESEND_API_KEY | Resend email API key | ❌ Manual (optional) |
+| EMAIL_FROM | Sender email address | ❌ Manual (optional) |
 
 ### Frontend (Vercel)
 | Variable | Description |

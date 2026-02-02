@@ -6,6 +6,7 @@ import {
     encryptPrivateKey,
     generateOTP
 } from '../utils/cryptoUtils.js';
+import { sendOTPEmail, isEmailConfigured } from '../services/emailService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -177,16 +178,25 @@ export async function login(req, res) {
 
         console.log(`🔐 OTP generated for ${user.email}: ${otpCode} (valid for ${OTP_EXPIRY_MINUTES} minutes)`);
 
-        // In production, send OTP via email/SMS
-        // For demo, we return it in the response
-        res.status(200).json({
+        // Send OTP via email (or fallback to demo mode)
+        const emailResult = await sendOTPEmail(user.email, otpCode, user.username);
+
+        // Build response
+        const response = {
             message: 'Password verified. Please enter the OTP to complete login.',
             userId: user.id,
             otpSentTo: user.email,
             expiresIn: `${OTP_EXPIRY_MINUTES} minutes`,
-            // DEMO ONLY: Remove in production
-            _demo_otp: otpCode
-        });
+            emailConfigured: isEmailConfigured()
+        };
+
+        // Include OTP in response only for demo mode (email not configured)
+        if (emailResult.demo) {
+            response._demo_otp = otpCode;
+            response._demo_notice = 'Email service not configured. OTP shown for demo purposes.';
+        }
+
+        res.status(200).json(response);
 
     } catch (error) {
         console.error('❌ Login error:', error);
