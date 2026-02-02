@@ -11,6 +11,7 @@ services:
     runtime: node
     region: oregon
     plan: free
+    rootDirectory: backend
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
