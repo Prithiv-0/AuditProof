@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import dataRoutes from './routes/dataRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import { autoInitDatabase } from './config/autoInit.js';
 
 // Load environment variables
 dotenv.config();
@@ -138,13 +139,18 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ===========================================
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log('\n========================================');
     console.log('🔐 VeriSchol API Server');
     console.log('========================================');
     console.log(`📡 Server running on http://localhost:${PORT}`);
     console.log(`📋 API Docs: http://localhost:${PORT}/api`);
     console.log(`💚 Health: http://localhost:${PORT}/api/health`);
+    console.log('========================================');
+
+    // Auto-initialize database on startup (for free tier without Shell access)
+    await autoInitDatabase();
+
     console.log('========================================');
     console.log('🛡️  Security Features:');
     console.log('   • Multi-Factor Authentication (MFA)');
