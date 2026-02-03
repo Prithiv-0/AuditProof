@@ -200,9 +200,9 @@ export async function getSystemStats(req, res) {
         (SELECT COUNT(*) FROM users WHERE role = 'admin') as admins,
         (SELECT COUNT(*) FROM projects) as total_projects,
         (SELECT COUNT(*) FROM research_data) as total_records,
-        (SELECT COUNT(*) FROM research_data WHERE status = 'verified') as verified_records,
-        (SELECT COUNT(*) FROM research_data WHERE status = 'corrupted') as corrupted_records,
-        (SELECT COUNT(*) FROM audit_log WHERE verification_status = 'tampered') as tamper_detections
+        (SELECT COUNT(*) FROM research_data WHERE verification_status = 'verified') as verified_records,
+        (SELECT COUNT(*) FROM research_data WHERE verification_status = 'tampered') as corrupted_records,
+        (SELECT COUNT(*) FROM audit_log) as total_audits
     `);
 
         res.json({ stats: stats.rows[0] });
