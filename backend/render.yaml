@@ -11,9 +11,8 @@ services:
     runtime: node
     region: oregon
     plan: free
-    rootDirectory: backend
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    buildCommand: npm install
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
