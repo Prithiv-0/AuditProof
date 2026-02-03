@@ -160,7 +160,17 @@ export async function updateData(req, res) {
         // Update audit log
         await pool.query(
             `UPDATE audit_log 
-             SET original_hash = $1, verification_status = 'pending', verified_by = NULL, verification_timestamp = NULL
+             SET details = jsonb_set(
+                jsonb_set(
+                    COALESCE(details, '{}'::jsonb), 
+                    '{original_hash}', 
+                    to_jsonb($1::text)
+                ),
+                '{verification_status}',
+                '"pending"'
+             ),
+             verified_by = NULL, 
+             verification_timestamp = NULL
              WHERE data_id = $2`,
             [contentHash, id]
         );
@@ -183,7 +193,10 @@ export async function getDataById(req, res) {
 
     try {
         const result = await pool.query(
-            `SELECT rd.*, al.original_hash, al.verification_status, al.digital_signature,
+            `SELECT rd.*, 
+                    al.details->>'original_hash' as original_hash,
+                    al.details->>'verification_status' as verification_status,
+                    al.details->>'digital_signature' as digital_signature,
                     u.username as researcher_name
              FROM research_data rd
              LEFT JOIN audit_log al ON rd.id = al.data_id
@@ -276,7 +289,10 @@ export async function verifyIntegrity(req, res) {
 
     try {
         const result = await pool.query(
-            `SELECT rd.*, al.original_hash, al.digital_signature, al.id as audit_id
+            `SELECT rd.*, 
+                    al.details->>'original_hash' as original_hash,
+                    al.details->>'digital_signature' as digital_signature, 
+                    al.id as audit_id
              FROM research_data rd
              JOIN audit_log al ON rd.id = al.data_id
              WHERE rd.id = $1`,
@@ -298,7 +314,15 @@ export async function verifyIntegrity(req, res) {
         const status = isTampered ? 'tampered' : 'verified';
 
         await pool.query(
-            `UPDATE audit_log SET verified_by = $1, verification_status = $2, verification_timestamp = NOW() WHERE id = $3`,
+            `UPDATE audit_log 
+             SET verified_by = $1, 
+                 details = jsonb_set(
+                    COALESCE(details, '{}'::jsonb), 
+                    '{verification_status}', 
+                    to_jsonb($2::text)
+                 ),
+                 verification_timestamp = NOW() 
+             WHERE id = $3`,
             [auditorId, status, data.audit_id]
         );
 
