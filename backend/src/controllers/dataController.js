@@ -67,19 +67,28 @@ export async function uploadData(req, res) {
         // In a real system, only the encrypted version would be stored.
         const dataResult = await pool.query(
             `INSERT INTO research_data 
-             (project_id, researcher_id, title, description, encrypted_content, iv, auth_tag, encrypted_aes_key, original_content, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending')
+             (project_id, researcher_id, title, description, encrypted_content, iv, auth_tag, encrypted_aes_key, original_content, original_hash, status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')
              RETURNING id, title, created_at`,
-            [projectId, researcherId, title, description || '', encrypted, iv, authTag, encryptedAesKey, content]
+            [projectId, researcherId, title, description || '', encrypted, iv, authTag, encryptedAesKey, content, contentHash]
         );
 
         const researchData = dataResult.rows[0];
 
         // Create audit log entry
         await pool.query(
-            `INSERT INTO audit_log (data_id, original_hash, digital_signature, signer_id, verification_status)
-             VALUES ($1, $2, $3, $4, 'pending')`,
-            [researchData.id, contentHash, 'signature-demo', researcherId]
+            `INSERT INTO audit_log (data_id, auditor_id, action, result, details)
+             VALUES ($1, NULL, $2, $3, $4)`,
+            [
+                researchData.id,
+                'UPLOAD',
+                'SUCCESS',
+                JSON.stringify({
+                    original_hash: contentHash,
+                    digital_signature: 'signature-demo', // In real app, this would be RSA signed
+                    verification_status: 'pending'
+                })
+            ]
         );
 
         res.status(201).json({
