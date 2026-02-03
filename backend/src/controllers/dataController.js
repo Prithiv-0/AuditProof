@@ -198,6 +198,8 @@ export async function getDataById(req, res) {
 
         const data = result.rows[0];
 
+        console.log(`🔍 Access Check: Data ${data.id}, User ${userId}, Role ${userRole}, Owner ${data.researcher_id}`);
+
         // SECURITY: Admin cannot view decrypted content
         if (userRole === 'admin') {
             return res.json({
@@ -221,10 +223,12 @@ export async function getDataById(req, res) {
         );
 
         if (assignment.rows.length === 0) {
+            console.warn(`⛔ Access Denied: User ${userId} not assigned to project ${data.project_id}`);
             return res.status(403).json({ error: 'Access denied. Project assignment required.' });
         }
 
         const assignedRole = assignment.rows[0].assigned_role;
+        console.log(`✅ Assigned Role: ${assignedRole}`);
 
         // RESEARCHER: Can see their OWN data's content
         // AUDITOR: Can see content for verification purposes
@@ -236,6 +240,8 @@ export async function getDataById(req, res) {
         } else if (assignedRole === 'auditor') {
             // Auditor can view for verification (but typically would decrypt properly)
             content = data.original_content || '[Content not available for verification]';
+        } else {
+            console.warn(`🔒 Access Restricted: User ${userId} is not owner or auditor`);
         }
 
         res.json({
