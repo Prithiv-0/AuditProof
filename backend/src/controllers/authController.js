@@ -227,7 +227,7 @@ export async function verifyOtp(req, res) {
             `SELECT os.*, u.email, u.role, u.username 
        FROM otp_sessions os 
        JOIN users u ON os.user_id = u.id
-       WHERE os.user_id = $1 AND os.otp_code = $2 AND os.used = FALSE AND os.expires_at > NOW()`,
+       WHERE os.user_id = $1 AND os.otp_code = $2 AND os.expires_at > NOW()`,
             [userId, otp]
         );
 
@@ -240,9 +240,9 @@ export async function verifyOtp(req, res) {
 
         const session = otpResult.rows[0];
 
-        // Mark OTP as used
+        // Delete OTP after use (instead of marking as used)
         await pool.query(
-            'UPDATE otp_sessions SET used = TRUE WHERE id = $1',
+            'DELETE FROM otp_sessions WHERE id = $1',
             [session.id]
         );
 
