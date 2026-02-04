@@ -36,6 +36,19 @@ export async function autoInitDatabase() {
         console.error('⚠️ Auto-init check failed:', error.message);
         // Don't throw - let server continue even if init fails
     }
+
+    // ALWAYS run schema migration (safely idempotently) to catch up existing databases
+    try {
+        console.log('🔄 Checking for schema updates...');
+        await pool.query(`
+            ALTER TABLE research_data ADD COLUMN IF NOT EXISTS original_hash VARCHAR(64);
+            ALTER TABLE research_data ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified';
+            ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS details JSONB;
+        `);
+        console.log('✅ Schema migration checked/applied');
+    } catch (migError) {
+        console.error('⚠️ Schema migration warning:', migError.message);
+    }
 }
 
 async function createTables() {
@@ -120,18 +133,6 @@ async function createTables() {
     `;
 
     await pool.query(schema);
-
-    // Schema Migration for existing databases
-    try {
-        await pool.query(`
-            ALTER TABLE research_data ADD COLUMN IF NOT EXISTS original_hash VARCHAR(64);
-            ALTER TABLE research_data ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified';
-            ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS details JSONB;
-        `);
-        console.log('✅ Schema migration checked/applied');
-    } catch (migError) {
-        console.error('⚠️ Schema migration warning:', migError.message);
-    }
 }
 
 async function seedData() {
