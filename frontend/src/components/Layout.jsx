@@ -17,6 +17,16 @@ export default function Layout({ children }) {
         });
     }
 
+    // Add Audit Logs for Admin and Auditor
+    const { isAuditor } = useAuth();
+    if (isAdmin || isAuditor) {
+        navItems.push({
+            path: '/audit-logs',
+            label: 'Audit Logs',
+            icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'
+        });
+    }
+
     const getRoleBadgeColor = (role) => {
         switch (role) {
             case 'researcher': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
@@ -53,8 +63,8 @@ export default function Layout({ children }) {
                                 <Link
                                     to={item.path}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${location.pathname === item.path
-                                            ? 'bg-primary-600/20 text-primary-400'
-                                            : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                                        ? 'bg-primary-600/20 text-primary-400'
+                                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

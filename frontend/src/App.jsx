@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminPanel from './pages/AdminPanel';
 import ProjectDetail from './pages/ProjectDetail';
+import AuditLogs from './pages/AuditLogs';
 
 // Protected route wrapper
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -68,6 +69,9 @@ function AppRoutes() {
             } />
             <Route path="/admin" element={
                 <ProtectedRoute adminOnly><AdminPanel /></ProtectedRoute>
+            } />
+            <Route path="/audit-logs" element={
+                <ProtectedRoute><AuditLogs /></ProtectedRoute>
             } />
 
             {/* Default redirect */}
