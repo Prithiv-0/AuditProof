@@ -4,6 +4,7 @@ import { projectAPI, dataAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import VerifyModal from '../components/VerifyModal';
+import DataDetailModal from '../components/DataDetailModal';
 
 export default function ProjectDetail() {
     const { id } = useParams();
@@ -24,6 +25,7 @@ export default function ProjectDetail() {
     const [description, setDescription] = useState('');
 
     const [showVerify, setShowVerify] = useState(false);
+    const [showDataDetail, setShowDataDetail] = useState(false);
 
     useEffect(() => {
         fetchProject();
@@ -193,13 +195,13 @@ export default function ProjectDetail() {
                                         setSelectedPageId(page.id);
                                     }}
                                     className={`w-full text-left p-3 rounded-xl transition-all group ${selectedPageId === page.id && !isNewPage
-                                            ? 'bg-primary-600/20 shadow-inner'
-                                            : 'hover:bg-white/5'
+                                        ? 'bg-primary-600/20 shadow-inner'
+                                        : 'hover:bg-white/5'
                                         }`}
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${page.status === 'verified' ? 'bg-green-500' :
-                                                page.status === 'corrupted' ? 'bg-red-500' : 'bg-yellow-500'
+                                            page.status === 'corrupted' ? 'bg-red-500' : 'bg-yellow-500'
                                             }`}></div>
                                         <div className="flex-1 min-w-0">
                                             <div className={`text-sm font-medium truncate ${selectedPageId === page.id && !isNewPage ? 'text-primary-400' : 'text-zinc-300'
@@ -270,10 +272,10 @@ export default function ProjectDetail() {
                             <div className="px-8 py-4 border-b border-white/10 flex justify-between items-center bg-dark-200/50">
                                 <div className="flex items-center gap-4">
                                     <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${pageContent?.status === 'verified'
-                                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                                            : pageContent?.status === 'corrupted'
-                                                ? 'bg-red-500/10 text-red-500 border-red-500/30'
-                                                : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                        ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                        : pageContent?.status === 'corrupted'
+                                            ? 'bg-red-500/10 text-red-500 border-red-500/30'
+                                            : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                                         }`}>
                                         {pageContent?.status || 'Pending Review'}
                                     </div>
@@ -304,6 +306,15 @@ export default function ProjectDetail() {
                                             Verify Integrity
                                         </button>
                                     )}
+                                    <button
+                                        onClick={() => setShowDataDetail(true)}
+                                        className="p-2 rounded-xl bg-white/5 text-zinc-400 hover:text-white transition-all"
+                                        title="View Details & QR Code"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
 
@@ -376,6 +387,13 @@ export default function ProjectDetail() {
                         fetchPageDetails(selectedPageId);
                         fetchProject();
                     }}
+                />
+            )}
+
+            {showDataDetail && pageContent && (
+                <DataDetailModal
+                    data={pageContent}
+                    onClose={() => setShowDataDetail(false)}
                 />
             )}
         </Layout>
