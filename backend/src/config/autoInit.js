@@ -44,6 +44,8 @@ export async function autoInitDatabase() {
             ALTER TABLE research_data ADD COLUMN IF NOT EXISTS original_hash VARCHAR(64);
             ALTER TABLE research_data ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified';
             ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS details JSONB;
+            ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS verified_by UUID REFERENCES users(id);
+            ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS verification_timestamp TIMESTAMP;
         `);
         console.log('✅ Schema migration checked/applied');
     } catch (migError) {
