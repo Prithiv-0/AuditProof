@@ -214,21 +214,25 @@ export async function getSystemStats(req, res) {
 }
 
 /**
- * Get audit logs (Admin only)
+ * Get audit logs (Admin and Auditor)
  * GET /api/admin/audit-logs
  */
 export async function getAuditLogs(req, res) {
     try {
         const result = await pool.query(`
-      SELECT al.*, 
+      SELECT al.id, al.data_id, al.auditor_id, al.action, al.result, al.details, al.performed_at,
+             al.verified_by, al.verification_timestamp,
              rd.title as data_title,
-             signer.username as signer_name,
+             rd.researcher_id,
+             researcher.username as researcher_name,
+             auditor.username as auditor_name,
              verifier.username as verified_by_name
       FROM audit_log al
-      JOIN research_data rd ON al.data_id = rd.id
-      JOIN users signer ON al.signer_id = signer.id
+      LEFT JOIN research_data rd ON al.data_id = rd.id
+      LEFT JOIN users researcher ON rd.researcher_id = researcher.id
+      LEFT JOIN users auditor ON al.auditor_id = auditor.id
       LEFT JOIN users verifier ON al.verified_by = verifier.id
-      ORDER BY al.created_at DESC
+      ORDER BY al.performed_at DESC
       LIMIT 100
     `);
 

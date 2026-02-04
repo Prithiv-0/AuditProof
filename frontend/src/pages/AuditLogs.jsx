@@ -85,7 +85,7 @@ export default function AuditLogs() {
                                     {logs.map((log) => (
                                         <tr key={log.id} className="hover:bg-white/5 transition-colors">
                                             <td className="px-6 py-4 text-sm text-zinc-300 font-mono">
-                                                {new Date(log.created_at).toLocaleString()}
+                                                {new Date(log.performed_at).toLocaleString()}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2 py-1 rounded-md text-xs font-bold border ${getActionColor(log.action)}`}>
@@ -97,7 +97,7 @@ export default function AuditLogs() {
                                                 <div className="text-[10px] text-zinc-500 font-mono mt-1">ID: {log.data_id?.substring(0, 8)}...</div>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-zinc-300">
-                                                {log.signer_name || 'System'}
+                                                {log.researcher_name || log.auditor_name || 'System'}
                                                 <div className="text-xs text-zinc-500 uppercase">{log.verified_by_name ? `Verified by: ${log.verified_by_name}` : ''}</div>
                                             </td>
                                             <td className="px-6 py-4">
