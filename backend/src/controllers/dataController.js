@@ -327,22 +327,19 @@ export async function verifyIntegrity(req, res) {
         let auditId = data.audit_id;
 
         if (auditId) {
-            // Update existing audit log
+            // Update existing audit log - replace entire details object to avoid jsonb_set issues
+            const updatedDetails = JSON.stringify({
+                original_hash: storedHash,
+                verification_status: status,
+                digital_signature: data.digital_signature || 'signature-demo'
+            });
             await pool.query(
                 `UPDATE audit_log 
                  SET verified_by = $1, 
-                     details = jsonb_set(
-                        jsonb_set(
-                            COALESCE(details, '{}'::jsonb), 
-                            '{original_hash}', 
-                            to_jsonb($2::text)
-                        ),
-                        '{verification_status}', 
-                        to_jsonb($3::text)
-                     ),
+                     details = $2::jsonb,
                      verification_timestamp = NOW() 
-                 WHERE id = $4`,
-                [auditorId, storedHash, status, auditId]
+                 WHERE id = $3`,
+                [auditorId, updatedDetails, auditId]
             );
         } else {
             // Create new audit log if missing (healing)
