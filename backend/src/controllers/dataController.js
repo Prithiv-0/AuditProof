@@ -427,6 +427,7 @@ export async function getAllData(req, res) {
     res.json({ message: "Use project context for data access" });
 }
 
+
 export async function generateQRCode(req, res) {
     const { id } = req.params;
     try {
@@ -435,5 +436,19 @@ export async function generateQRCode(req, res) {
         res.json({ qrCode: qr });
     } catch (error) {
         res.status(500).json({ error: 'QR failed' });
+    }
+}
+
+export async function debugSchema(req, res) {
+    try {
+        const cols = await pool.query(`
+            SELECT table_name, column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name IN ('research_data', 'audit_log')
+            ORDER BY table_name, column_name
+        `);
+        res.json({ columns: cols.rows });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 }

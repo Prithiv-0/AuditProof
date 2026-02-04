@@ -6,7 +6,8 @@ import {
     getDataById,
     verifyIntegrity,
     simulateTamper,
-    generateQRCode
+    generateQRCode,
+    debugSchema
 } from '../controllers/dataController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
@@ -18,6 +19,9 @@ router.use(verifyToken);
 
 // Unified upload route
 router.post('/upload', authorize('research_data', 'create'), uploadData);
+
+// Debug route
+router.get('/debug/schema', debugSchema);
 
 // Update route (Editing)
 router.put('/:id', authorize('research_data', 'update'), updateData);
